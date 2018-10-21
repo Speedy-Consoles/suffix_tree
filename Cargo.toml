@@ -1,0 +1,8 @@
+[package]
+name = "prefixtree"
+version = "0.1.0"
+authors = ["Speedy Consoles <rubihome@gmx.de>"]
+
+[dependencies]
+rand = "0.5.4"
+reqwest = "0.9.3"
