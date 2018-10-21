@@ -1,5 +1,5 @@
 [package]
-name = "prefixtree"
+name = "suffix_tree"
 version = "0.1.0"
 authors = ["Speedy Consoles <rubihome@gmx.de>"]
 

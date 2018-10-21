@@ -17,12 +17,15 @@ fn main() {
     //let text = "";
     //println!("{}", text);
 
+    //let text = reqwest::get("https://www.ccel.org/ccel/bible/kjv.txt").unwrap().text().unwrap();
     let text = reqwest::get("https://longestjokeintheworld.com/").unwrap().text().unwrap();
 
     //let needles = vec!["Nate", "the"];
     let needles_string = reqwest::get("https://raw.githubusercontent.com/dwyl/english-words/master/words.txt")
         .unwrap().text().unwrap();
     let needles: Vec<&str> = needles_string.split('\n').collect();
+
+    //let needles = vec!["and the"];
 
     let mut start_points = Vec::new();
 

@@ -3,19 +3,14 @@ use std::collections::HashMap;
 
 use find::Find;
 
-#[derive(Default, Debug)]
-struct Node<'a> {
-    // Byte index in the haystack where we have to start to have the needle ending here.
-    // This does not include the start point that caused the creation of this node's thread.
-    extra_start_points: Vec<usize>,
-    children: Vec<Thread<'a>>,
-}
-
 #[derive(Debug)]
 struct Thread<'a> {
     start_index: usize,
     text: &'a str,
-    nodes: HashMap<usize, Node<'a>>,
+    // Byte index in the haystack where we have to start to have the needle ending here.
+    // This does not include the start point that caused the creation of this node's thread.
+    extra_start_points: HashMap<usize, Vec<usize>>,
+    children: HashMap<usize, Vec<Thread<'a>>>,
 }
 
 #[derive(Debug)]
@@ -43,8 +38,9 @@ impl<'a> Find<'a> for SuffixTree<'a> {
                         continue;
                     }
                     for i in 1..(thread_offset + 1) {
-                        thread.nodes.entry(i).or_insert(Default::default())
-                            .extra_start_points.push(start_index);
+                        thread.extra_start_points
+                            .entry(i).or_insert(Default::default())
+                            .push(start_index);
                     }
                     if thread_offset == rem_suffix.len() {
                         // During creation there will never be a needle
@@ -60,10 +56,16 @@ impl<'a> Find<'a> for SuffixTree<'a> {
                     }
                 }
                 if let Some((child_index, thread_offset)) = branch_data {
-                    children = &mut {children}[child_index].nodes.get_mut(&thread_offset).unwrap().children;
+                    children = {children}[child_index].children
+                        .entry(thread_offset).or_insert(Default::default());
                 } else if !inserted {
                     // Creating a new thread for this needle.
-                    children.push(Thread { start_index, text: rem_suffix, nodes: HashMap::new() });
+                    children.push(Thread {
+                        start_index,
+                        text: rem_suffix,
+                        extra_start_points: HashMap::new(),
+                        children: HashMap::new(),
+                    });
                     inserted = true;
                 }
             }
@@ -85,12 +87,12 @@ impl<'a> Find<'a> for SuffixTree<'a> {
                 }
                 if thread_offset == rem_needle.len() {
                     start_points.push(thread.start_index);
-                    if let Some(node) = thread.nodes.get(&thread_offset) {
-                        start_points.extend(&node.extra_start_points);
+                    if let Some(extra_start_points) = thread.extra_start_points.get(&thread_offset) {
+                        start_points.extend(extra_start_points);
                     }
                     return;
-                } else if let Some(node) = thread.nodes.get(&thread_offset) {
-                    children = &node.children;
+                } else if let Some(new_children) = thread.children.get(&thread_offset) {
+                    children = new_children;
                     rem_needle = &rem_needle[thread_offset..];
                     branched = true;
                     break;
