@@ -15,19 +15,32 @@ fn main() {
     //let text = generate_random_string(999);
     //let text = "asdfaafdsa";
     //let text = "";
-    let text = reqwest::get("https://longestjokeintheworld.com/").unwrap().text().unwrap();
-    let needle = "Nate";
     //println!("{}", text);
 
-    let mut ls_start_points = Vec::new();
-    let ls = LinearSearch::new(&text);
-    ls.find(&needle, &mut ls_start_points);
-    println!("{:?}", ls_start_points);
+    let text = reqwest::get("https://longestjokeintheworld.com/").unwrap().text().unwrap();
 
-    let mut st_start_points = Vec::new();
+    //let needles = vec!["Nate", "the"];
+    let needles_string = reqwest::get("https://raw.githubusercontent.com/dwyl/english-words/master/words.txt")
+        .unwrap().text().unwrap();
+    let needles: Vec<&str> = needles_string.split('\n').collect();
+
+    let mut start_points = Vec::new();
+
+    /*let ls = LinearSearch::new(&text);
+    for needle in &needles {
+        ls.find(needle, &mut start_points);
+        if !start_points.is_empty() {
+            println!("{}: {:?}", needle, start_points.len());
+        }
+    }*/
+
     let st = SuffixTree::new(&text);
-    st.find(&needle, &mut st_start_points);
-    println!("{:?}", st_start_points);
+    for needle in &needles {
+        st.find(needle, &mut start_points);
+        if !start_points.is_empty() {
+            println!("{}: {:?}", needle, start_points.len());
+        }
+    }
 }
 
 static ALPHABET: [char; 26] = [

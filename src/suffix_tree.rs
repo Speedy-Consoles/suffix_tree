@@ -73,6 +73,7 @@ impl<'a> Find<'a> for SuffixTree<'a> {
     }
 
     fn find(&self, needle: &str, start_points: &mut Vec<usize>) {
+        start_points.clear();
         let mut rem_needle = needle;
         let mut children = &self.start_threads;
         loop {

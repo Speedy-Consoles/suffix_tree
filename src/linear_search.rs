@@ -12,6 +12,7 @@ impl<'a> Find<'a> for LinearSearch<'a> {
     }
 
     fn find(&self, needle: &str, start_points: &mut Vec<usize>) {
+        start_points.clear();
         let mut hcs = self.haystack.char_indices();
         loop {
             let mut next_hcs = hcs.clone();
